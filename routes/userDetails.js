@@ -6,13 +6,29 @@ router.use(express.json());
 // Create a MySQL connection pool
 const pool = mysql.createPool(dbConfig);
 
-// Define API endpoint to fetch user details from the 'users', 'user_job', and 'skills' tables
-router.get("/users/:id", (req, res) => {
-  const userId = req.params.id;
-  // Get a connection from the connection pool
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
+function queryDatabase(query, params) {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        reject(err);
+      } else {
+        connection.query(query, params, (err, results) => {
+          connection.release(); // Release the connection back to the pool
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        });
+      }
+    });
+  });
+}
 
+// Define API endpoint to fetch user details from the 'users', 'user_job', and 'skills' tables
+router.get("/users/:id", async (req, res) => {
+  const userId = req.params.id;
+  try {
     // Perform a JOIN query to fetch user details from the 'users', 'user_job', and 'skills' tables
     const query = `
       SELECT
@@ -30,92 +46,71 @@ router.get("/users/:id", (req, res) => {
         users u
         LEFT JOIN user_job j ON u.user_id = j.user_id
       WHERE
-        u.user_id = ${userId}
+        u.user_id = ?
     `;
-    connection.query(query, (err, results) => {
-      connection.release(); // Release the connection back to the pool
-      if (err) {
-        res.status(500).send("Error fetching user details from database");
-      } else {
-        res.status(200).send(results);
-      }
-    });
-  });
+    const results = await queryDatabase(query, [userId]);
+    res.status(200).send(results);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching user details from database");
+  }
 });
 
 // Define API endpoint to create a new user in 'users' table
-router.post("/users", (req, res) => {
+router.post("/users", async (req, res) => {
   const { firstName, lastName, email, passphrase, gender } = req.body;
 
-  // Get a connection from the connection pool
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-
+  try {
     // Perform an INSERT query to create a new user in 'users' table
     const query = `INSERT INTO users (firstName, lastName, email, passphrase, gender)
                      VALUES (?, ?, ?, ?, ?)`;
-    connection.query(
-      query,
-      [firstName, lastName, email, passphrase, gender],
-      (err, result) => {
-        connection.release(); // Release the connection back to the pool
-        if (err) {
-          console.log(err);
-          res.status(500).send("Error creating new user in database");
-        } else {
-          res.status(201).send(`${result.insertId}`);
-        }
-      }
-    );
-  });
+    const result = await queryDatabase(query, [
+      firstName,
+      lastName,
+      email,
+      passphrase,
+      gender,
+    ]);
+    res.status(201).send(`${result.insertId}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error creating new user in database");
+  }
 });
 
-router.post("/users-job", (req, res) => {
+router.post("/users-job", async (req, res) => {
   const { company, title, salary, salary_type, job_rating, user_id } = req.body;
 
-  // Get a connection from the connection pool
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-
+  try {
     // Perform an INSERT query to create a new user in 'users' table
     const query = `INSERT INTO user_job (company, title, salary, salary_type, job_rating , user_id)
                        VALUES (?, ?, ?, ?, ?,?)`;
-    connection.query(
-      query,
-      [company, title, salary, salary_type, job_rating, user_id],
-      (err, result) => {
-        connection.release(); // Release the connection back to the pool
-        if (err) {
-          console.log(err);
-          res.status(500).send("Error creating new user in database");
-        } else {
-          res.status(201).send(`${result.insertId}`);
-        }
-      }
-    );
-  });
+    const result = await queryDatabase(query, [
+      company,
+      title,
+      salary,
+      salary_type,
+      job_rating,
+      user_id,
+    ]);
+    res.status(201).send(`${result.insertId}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error creating new user in database");
+  }
 });
 
-router.post("/users-skills", (req, res) => {
+router.post("/users-skills", async (req, res) => {
   const { user_id, skill } = req.body;
-
-  // Get a connection from the connection pool
-  pool.getConnection((err, connection) => {
-    if (err) throw err;
-
-    // Perform an INSERT query to create a new user in 'users' table
-    const query = `INSERT INTO skills ( user_id, skill)
-                         VALUES (?, ?)`;
-    connection.query(query, [user_id, skill], (err, result) => {
-      connection.release(); // Release the connection back to the pool
-      if (err) {
-        console.log(err);
-        res.status(500).send("Error creating new user in database");
-      } else {
-        res.status(201).send(`${result.insertId}`);
-      }
-    });
-  });
+  try {
+    // Perform an INSERT query to create a new skill for a user in 'skills' table
+    const query = `INSERT INTO skills (user_id, skill) VALUES (?, ?)`;
+    const result = await queryDatabase(query, [user_id, skill]);
+    res.status(201).send(`${result.insertId}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error creating new skill in database");
+  }
 });
 
 module.exports = router;
