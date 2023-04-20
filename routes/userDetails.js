@@ -60,13 +60,61 @@ router.post("/users", (req, res) => {
       (err, result) => {
         connection.release(); // Release the connection back to the pool
         if (err) {
-            console.log(err)
+          console.log(err);
           res.status(500).send("Error creating new user in database");
         } else {
           res.status(201).send(`${result.insertId}`);
         }
       }
     );
+  });
+});
+
+router.post("/users-job", (req, res) => {
+  const { company, title, salary, salary_type, job_rating, user_id } = req.body;
+
+  // Get a connection from the connection pool
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+
+    // Perform an INSERT query to create a new user in 'users' table
+    const query = `INSERT INTO user_job (company, title, salary, salary_type, job_rating , user_id)
+                       VALUES (?, ?, ?, ?, ?,?)`;
+    connection.query(
+      query,
+      [company, title, salary, salary_type, job_rating, user_id],
+      (err, result) => {
+        connection.release(); // Release the connection back to the pool
+        if (err) {
+          console.log(err);
+          res.status(500).send("Error creating new user in database");
+        } else {
+          res.status(201).send(`${result.insertId}`);
+        }
+      }
+    );
+  });
+});
+
+router.post("/users-skills", (req, res) => {
+  const { user_id, skill } = req.body;
+
+  // Get a connection from the connection pool
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+
+    // Perform an INSERT query to create a new user in 'users' table
+    const query = `INSERT INTO skills ( user_id, skill)
+                         VALUES (?, ?)`;
+    connection.query(query, [user_id, skill], (err, result) => {
+      connection.release(); // Release the connection back to the pool
+      if (err) {
+        console.log(err);
+        res.status(500).send("Error creating new user in database");
+      } else {
+        res.status(201).send(`${result.insertId}`);
+      }
+    });
   });
 });
 
