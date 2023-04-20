@@ -1,21 +1,15 @@
-// Import required packages
-const express = require('express');
-const mysql = require('mysql');
+// routes/helloWorld.js
 
-// Create Express app
-const app = express();
+const express = require('express');
+const router = express.Router();
+const mysql = require('mysql');
+const dbConfig = require('./../conf/database');
 
 // Create a MySQL connection pool
-const pool = mysql.createPool({
-  connectionLimit: 1,  // Set the maximum number of connections in the pool
-  host: 'adtdataquest.cvrueppipmsl.us-east-2.rds.amazonaws.com',       // Replace with your AWS RDS host name
-  user: 'dataquest',  // Replace with your database username
-  password: '9133656685',  // Replace with your database password
-  database: 'dataquest'  // Replace with your database name
-});
+const pool = mysql.createPool(dbConfig);
 
 // Define API endpoint to fetch data from 'helloworld' table
-app.get('/getdata', (req, res) => {
+router.get('/getdata', (req, res) => {
   // Get a connection from the connection pool
   pool.getConnection((err, connection) => {
     if (err) throw err;
@@ -33,7 +27,4 @@ app.get('/getdata', (req, res) => {
   });
 });
 
-// Start the Express app
-app.listen(3000, () => {
-  console.log('App listening on port 3000!');
-});
+module.exports = router;
