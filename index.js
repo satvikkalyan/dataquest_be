@@ -1,9 +1,11 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const helloWorldRoutes = require('./routes/helloWorld');
 const userDetailsRoutes = require('./routes/userDetails');
 const emailRoutes = require('./utils/email');
 
+app.use(cors());
 // Mount the routes defined in "routes/helloWorld.js"
 app.use('/', helloWorldRoutes);
 
