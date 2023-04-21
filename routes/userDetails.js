@@ -93,6 +93,7 @@ router.put("/users/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
   console.log(userId);
   const { firstName, lastName } = req.body;
+  console.log(firstName, lastName);
 
   try {
     // Perform an UPDATE query to update the user's first name, last name, and email in 'users' table
@@ -103,17 +104,19 @@ router.put("/users/:id", async (req, res) => {
       WHERE user_id = ?
     `;
     const result = await queryDatabase(query, [firstName, lastName, userId]);
-    res.status(200).send(`User ${userId} updated successfully`);
+    res.status(200).json({ message: `User ${userId} updated successfully` });
   } catch (err) {
     console.log(err);
-    res.status(500).send(`Error updating user ${userId} in database`);
+    res
+      .status(500)
+      .json({ message: `Error updating user ${userId} in database` });
   }
 });
 
 router.put("/users-job/:id", async (req, res) => {
   const { company, title, salary, salary_type, job_rating } = req.body;
   const userId = parseInt(req.params.id);
-
+  console.log(company, title, salary, salary_type, job_rating);
   try {
     // Perform a SELECT query to check if user has job details already present in 'user_job' table
     const query = `SELECT * FROM user_job WHERE user_id = ?`;
@@ -132,7 +135,7 @@ router.put("/users-job/:id", async (req, res) => {
         job_rating,
         userId,
       ]);
-      res.status(200).send("Job details updated successfully");
+      res.status(200).json({ message: "Job details updated successfully" });
     } else {
       // If job details not present for user, perform an INSERT query to create a new record
       const insertQuery = `INSERT INTO user_job (company, title, salary, salary_type, job_rating, user_id)
@@ -145,11 +148,13 @@ router.put("/users-job/:id", async (req, res) => {
         job_rating,
         userId,
       ]);
-      res.status(201).send("Job details added successfully");
+      res.status(201).json({ message: "Job details added successfully" });
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error adding/updating job details for user");
+    res
+      .status(500)
+      .json({ message: "Error adding/updating job details for user" });
   }
 });
 
