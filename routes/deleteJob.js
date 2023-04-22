@@ -28,11 +28,16 @@ function queryDatabase(query, params) {
   });
 }
 //get all Job details
-router.get("/deleteJob/:id", async (req, res) => {
+router.delete("/deleteJob/:id", async (req, res) => {
     const jobId=req.params.id
+    console.log("Here");
     try{
         const query = 'DELETE FROM JobSkills WHERE JobID =(?)';
         const jobs = await queryDatabase(query,parseInt(jobId));
+        console.log(jobs)
+        const new_test = 'select * from JobSkills';
+        const results = await queryDatabase(new_test,parseInt(jobId));
+        console.log(results)
         const deleteJob='DELETE FROM Jobs WHERE JobID = (?)';
         const result = await queryDatabase(deleteJob,parseInt(jobId));
         res.status(200).json({ message: `Job with id ${jobId} has been deleted` });
