@@ -8,19 +8,17 @@ router.use(bodyParser.json());
 router.post('/send-email', (req, res) => {
   const { name, description, email } = req.body;
 
-  // Create a transporter object to send the email
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'satvikkalyan99@gmail.com', // Replace with your own email address
-      pass: '' // Replace with your own email password
+      user: process.env.EMAIL, 
+      pass: process.env.EMAIL_PASSWORD 
     }
   });
 
-  // Define the email options
   const mailOptions = {
-    from: 'satvikkalyan99@gmail.com',
-    to: 'satvikkalyan@gmail.com',
+    from: process.env.EMAIL, 
+    to: process.env.TO_EMAIL,
     subject: 'New Message from Contact Form',
     html: `
       <p><strong>Name:</strong> ${name}</p>
@@ -28,8 +26,6 @@ router.post('/send-email', (req, res) => {
       <p><strong>Message:</strong> ${description}</p>
     `
   };
-
-  // Send the email
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
