@@ -116,7 +116,7 @@ router.put("/users/:id", async (req, res) => {
 router.put("/users-job/:id", async (req, res) => {
   const { company, title, salary, salary_type, job_rating } = req.body;
   const userId = parseInt(req.params.id);
-  console.log(company, title, salary, salary_type, job_rating);
+  console.log(company, title, salary, "Annually", job_rating);
   try {
     // Perform a SELECT query to check if user has job details already present in 'user_job' table
     const query = `SELECT * FROM user_job WHERE user_id = ?`;
@@ -131,7 +131,7 @@ router.put("/users-job/:id", async (req, res) => {
         company,
         title,
         salary,
-        salary_type,
+        "Annually",
         job_rating,
         userId,
       ]);
@@ -144,7 +144,7 @@ router.put("/users-job/:id", async (req, res) => {
         company,
         title,
         salary,
-        salary_type,
+        "Annually",
         job_rating,
         userId,
       ]);
@@ -172,7 +172,7 @@ router.post("/users", async (req, res) => {
       email,
       passphrase,
       gender,
-      admin,
+      false,
     ]);
     res.status(201).send(`${result.insertId}`);
   } catch (err) {
