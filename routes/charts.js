@@ -31,20 +31,26 @@ router.get("/charts", async (req, res) => {
         SELECT Industry, AVG(LowerSalary + UpperSalary)/2 AS AvgHourlyPay
         FROM Jobs JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
         WHERE Hourly = 1
-        GROUP BY Industry;
+        GROUP BY Industry
+        ORDER BY AvgHourlyPay DESC
+        LIMIT 10;
       `);
 
     const avgAnnuallyPayByIndustry = await queryDatabase(`
         SELECT Industry, AVG(AvgSalary) AS AvgAnnuallyPay
         FROM Jobs JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
         WHERE Hourly = 0
-        GROUP BY Industry;
+        GROUP BY Industry
+        ORDER BY AvgAnnuallyPay DESC
+        LIMIT 10;
       `);
 
     const numOfJobOpeningsByIndustry = await queryDatabase(`
         SELECT Industry, COUNT(*) AS NumOfJobOpenings
         FROM Jobs JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
-        GROUP BY Industry;
+        GROUP BY Industry
+        ORDER BY NumOfJobOpenings DESC
+        LIMIT 10;
       `);
 
     res.status(200).send({
@@ -57,6 +63,5 @@ router.get("/charts", async (req, res) => {
     res.status(500).send("An error occurred while processing your request.");
   }
 });
-
 
 module.exports = router;
