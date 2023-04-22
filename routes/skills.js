@@ -100,7 +100,7 @@ router.post('/jobs', async (req, res) => {
           industry: job[0].Industry,
           sector: job[0].Sector,
           revenue: job[0].Revenue,
-          COMPETITORS: COMPETITORS.map(({ CompetitorName }) => ({ competitorName: CompetitorName })),
+          competitors: COMPETITORS.map(({ CompetitorName }) => ({ competitorName: CompetitorName })),
         },
         //skills: skills.map(({ Skill }) => ({ skill: Skill })),
       });
@@ -109,7 +109,7 @@ router.post('/jobs', async (req, res) => {
         const userId = result.jobId;
         console.log(userId)
         const skillsToDevelop = skillsDict[userId].filter(skill => !skills.includes(skill));
-        result.skills_to_develop = skillsToDevelop.map(skill => ({skill}));
+        result.skills = skillsToDevelop.map(skill => ({skill}));
     }
       
     //console.log(jobDetails);
