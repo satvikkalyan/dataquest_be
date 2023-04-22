@@ -37,6 +37,7 @@ router.get("/users/:id", async (req, res) => {
         u.lastName,
         u.email,
         u.gender,
+        u.isadmin,
         j.company,
         j.title,
         j.salary,
@@ -56,20 +57,122 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
+router.get("/users/verify/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    // Perform a JOIN query to fetch user details from the 'users', 'user_job', and 'skills' tables
+    const query = `
+      SELECT
+        u.user_id,
+        u.firstName,
+        u.lastName,
+        u.email,
+        u.passphrase,
+        u.gender,
+        u.isAdmin,
+        j.company,
+        j.title,
+        j.salary,
+        j.salary_type,
+        j.job_rating
+      FROM
+        users u
+        LEFT JOIN user_job j ON u.user_id = j.user_id
+      WHERE
+        u.email = ?
+    `;
+    const results = await queryDatabase(query, [email]);
+    res.status(200).send(results);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching user details from database");
+  }
+});
+
+router.put("/users/:id", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  console.log(userId);
+  const { firstName, lastName } = req.body;
+  console.log(firstName, lastName);
+
+  try {
+    // Perform an UPDATE query to update the user's first name, last name, and email in 'users' table
+    const query = `
+      UPDATE users
+      SET firstName = ?,
+          lastName = ?
+      WHERE user_id = ?
+    `;
+    const result = await queryDatabase(query, [firstName, lastName, userId]);
+    res.status(200).json({ message: `User ${userId} updated successfully` });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: `Error updating user ${userId} in database` });
+  }
+});
+
+router.put("/users-job/:id", async (req, res) => {
+  const { company, title, salary, salary_type, job_rating } = req.body;
+  const userId = parseInt(req.params.id);
+  console.log(company, title, salary, salary_type, job_rating);
+  try {
+    // Perform a SELECT query to check if user has job details already present in 'user_job' table
+    const query = `SELECT * FROM user_job WHERE user_id = ?`;
+    const result = await queryDatabase(query, [userId]);
+
+    if (result.length > 0) {
+      // If job details already present for user, perform an UPDATE query to update the details
+      const updateQuery = `UPDATE user_job
+                           SET company = ?, title = ?, salary = ?, salary_type = ?, job_rating = ?
+                           WHERE user_id = ?`;
+      await queryDatabase(updateQuery, [
+        company,
+        title,
+        salary,
+        salary_type,
+        job_rating,
+        userId,
+      ]);
+      res.status(200).json({ message: "Job details updated successfully" });
+    } else {
+      // If job details not present for user, perform an INSERT query to create a new record
+      const insertQuery = `INSERT INTO user_job (company, title, salary, salary_type, job_rating, user_id)
+                           VALUES (?, ?, ?, ?, ?, ?)`;
+      await queryDatabase(insertQuery, [
+        company,
+        title,
+        salary,
+        salary_type,
+        job_rating,
+        userId,
+      ]);
+      res.status(201).json({ message: "Job details added successfully" });
+    }
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Error adding/updating job details for user" });
+  }
+});
+
 // Define API endpoint to create a new user in 'users' table
 router.post("/users", async (req, res) => {
-  const { firstName, lastName, email, passphrase, gender } = req.body;
+  const { firstName, lastName, email, passphrase, gender, admin } = req.body;
 
   try {
     // Perform an INSERT query to create a new user in 'users' table
-    const query = `INSERT INTO users (firstName, lastName, email, passphrase, gender)
-                     VALUES (?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO users (firstName, lastName, email, passphrase, gender,isadmin)
+                     VALUES (?, ?, ?, ?, ?,?)`;
     const result = await queryDatabase(query, [
       firstName,
       lastName,
       email,
       passphrase,
       gender,
+      admin,
     ]);
     res.status(201).send(`${result.insertId}`);
   } catch (err) {
