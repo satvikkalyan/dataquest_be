@@ -8,6 +8,9 @@ const Jobdetails_by_id = require("./routes/Jobdetails");
 const allJobs = require("./routes/allJobs");
 const delete_job = require("./routes/deleteJob");
 const chartRoutes = require("./routes/charts");
+const cors = require('cors');
+
+app.use(cors());
 
 // Mount the routes defined in "routes/helloWorld.js"
 app.use("/", helloWorldRoutes);
