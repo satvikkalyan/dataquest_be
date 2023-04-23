@@ -12,8 +12,6 @@ function queryDatabase(query, params) {
       if (err) {
         reject(err);
       } else {
-        
-        console.log(params);
         connection.query(query, params, (err, results) => {
         connection.release(); // Release the connection back to the pool
         if (err) {
@@ -38,10 +36,7 @@ router.get("/Jobs/:id", async (req, res) => {
       JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
       WHERE Jobs.JobID = (?)
     `
-        console.log("hi")
         const job = await queryDatabase(query_job,parseInt(jobId));
-        console.log("hello");
-      //console.log(job);
         const COMPETITORS_query=`
         SELECT CompetitorName
         FROM COMPETITORS

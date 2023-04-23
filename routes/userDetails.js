@@ -91,12 +91,9 @@ router.get("/users/verify/:email", async (req, res) => {
 
 router.put("/users/:id", async (req, res) => {
   const userId = parseInt(req.params.id);
-  console.log(userId);
   const { firstName, lastName } = req.body;
-  console.log(firstName, lastName);
 
   try {
-    // Perform an UPDATE query to update the user's first name, last name, and email in 'users' table
     const query = `
       UPDATE users
       SET firstName = ?,
@@ -116,7 +113,6 @@ router.put("/users/:id", async (req, res) => {
 router.put("/users-job/:id", async (req, res) => {
   const { company, title, salary, salary_type, job_rating } = req.body;
   const userId = parseInt(req.params.id);
-  console.log(company, title, salary, "Annually", job_rating);
   try {
     // Perform a SELECT query to check if user has job details already present in 'user_job' table
     const query = `SELECT * FROM user_job WHERE user_id = ?`;

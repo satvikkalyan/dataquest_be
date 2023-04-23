@@ -13,9 +13,8 @@ function queryDatabase(query, params) {
         reject(err);
       } else {
         
-        //console.log(params);
         connection.query(query, params, (err, results) => {
-        connection.release(); // Release the connection back to the pool
+        connection.release(); 
         if (err) {
             reject(err);
         } else {

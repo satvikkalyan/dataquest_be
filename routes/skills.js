@@ -27,23 +27,14 @@ function queryDatabase(query, params) {
   });
 }
 router.post('/jobs', async (req, res) => {
-    //console.log("hi")
-    console.log(req.body)
     const skills = req.body.skills;
     const skills_query=[skills];
-    //console.log(skills)
     const query = 'SELECT DISTINCT JobID FROM JobSkills WHERE Skill IN (?)';
-    //const query='SELECT * FROM JobSkills';
     const results= await queryDatabase(query,skills_query)
-    //console.log("results",results);
     const jobDetailsParams = results.map(result => result.JobID);
     const jobDetailsParams_for_skills = [jobDetailsParams];
-    //console.log("jobparams",jobDetailsParams);
     const allskillsquery='select * from JobSkills where JobID in (?)';
     const skills_details=await queryDatabase(allskillsquery, jobDetailsParams_for_skills)
-    console.log(skills_details);
-
-    //const jobDetailsQuery = `SELECT * FROM Jobs WHERE JobId IN (?)`;
     const skillsDict = {};
 
     for (const item of skills_details) {
@@ -52,11 +43,8 @@ router.post('/jobs', async (req, res) => {
       }
       skillsDict[parseInt(item.JobID)].push(item.Skill);
     }
-    console.log(skillsDict);
     const jobDetails = [];
-   // console.log(typeof(jobDetailsParams));
     for (const jobId of Object.values(jobDetailsParams)) {
-      //console.log("jobid",jobId);
       const query_job=`
       SELECT Jobs.JobID, Jobs.JobTitle, Jobs.JobDescription, Jobs.Hourly, Jobs.EmployerProvided, Jobs.LowerSalary, Jobs.UpperSalary, Jobs.AvgSalary, Jobs.CompanyID, Companies.CompanyName, Companies.Rating, Companies.Location, Companies.Headquarters, Companies.Size, Companies.Founded, Companies.TypeOfOwnership, Companies.Industry, Companies.Sector, Companies.Revenue
       FROM Jobs
@@ -64,7 +52,6 @@ router.post('/jobs', async (req, res) => {
       WHERE Jobs.JobID = (?)
     `
       const job = await queryDatabase(query_job,parseInt(jobId));
-      //console.log(job);
       const COMPETITORS_query=`
       SELECT CompetitorName
       FROM COMPETITORS
@@ -78,7 +65,6 @@ router.post('/jobs', async (req, res) => {
     `
       const skills =await queryDatabase(skills_query,jobId);
     
-      // format the job details as desired
       jobDetails.push({
         jobId: job[0].JobID,
         jobTitle: job[0].JobTitle,
@@ -102,17 +88,14 @@ router.post('/jobs', async (req, res) => {
           revenue: job[0].Revenue,
           competitors: COMPETITORS.map(({ CompetitorName }) => ({ competitorName: CompetitorName })),
         },
-        //skills: skills.map(({ Skill }) => ({ skill: Skill })),
       });
     }
     for (const result of jobDetails) {
         const userId = result.jobId;
-        console.log(userId)
         const skillsToDevelop = skillsDict[userId].filter(skill => !skills.includes(skill));
         result.skills = skillsToDevelop.map(skill => ({skill}));
     }
       
-    //console.log(jobDetails);
     res.status(200).send(jobDetails);
 
 
