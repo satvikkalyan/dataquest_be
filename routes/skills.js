@@ -28,7 +28,7 @@ function queryDatabase(query, params) {
 }
 router.post('/jobs', async (req, res) => {
     //console.log("hi")
-    //console.log(req.body)
+    console.log(req.body)
     const skills = req.body.skills;
     const skills_query=[skills];
     //console.log(skills)
