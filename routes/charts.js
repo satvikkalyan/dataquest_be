@@ -33,7 +33,7 @@ router.get("/charts", async (req, res) => {
         WHERE Hourly = 1
         GROUP BY Industry
         ORDER BY AvgHourlyPay DESC
-        LIMIT 10;
+        LIMIT 5;
       `);
 
     const avgAnnuallyPayByIndustry = await queryDatabase(`
@@ -42,7 +42,7 @@ router.get("/charts", async (req, res) => {
         WHERE Hourly = 0
         GROUP BY Industry
         ORDER BY AvgAnnuallyPay DESC
-        LIMIT 10;
+        LIMIT 5;
       `);
 
     const numOfJobOpeningsByIndustry = await queryDatabase(`
@@ -50,7 +50,7 @@ router.get("/charts", async (req, res) => {
         FROM Jobs JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
         GROUP BY Industry
         ORDER BY NumOfJobOpenings DESC
-        LIMIT 10;
+        LIMIT 5;
       `);
 
     res.status(200).send({
