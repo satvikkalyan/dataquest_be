@@ -13,10 +13,8 @@ const cors = require('cors');
 const updateJob=require('./routes/updateJobs');
 app.use(cors());
 
-// Mount the routes defined in "routes/helloWorld.js"
 app.use("/", helloWorldRoutes);
 
-// Mount the routes defined in "routes/userDetails.js"
 app.use("/", chartRoutes);
 app.use("/", userDetailsRoutes);
 app.use("/", jobRoutes);
@@ -26,7 +24,6 @@ app.use("/", emailRoutes);
 app.use("/", delete_job);
 app.use("/",addJob);
 app.use("/",updateJob);
-// Start the Express app
 app.listen(3001, () => {
   console.log("App listening on port 3001!");
 });

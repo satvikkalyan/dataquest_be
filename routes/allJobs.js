@@ -12,10 +12,8 @@ function queryDatabase(query, params) {
       if (err) {
         reject(err);
       } else {
-        
-        //console.log(params);
         connection.query(query, params, (err, results) => {
-        connection.release(); // Release the connection back to the pool
+        connection.release(); 
         if (err) {
             reject(err);
         } else {
@@ -29,9 +27,8 @@ function queryDatabase(query, params) {
 }
 
 
-//get all Job details
+
 router.get("/allJobs", async (req, res) => {
-//const jobId=req.params.id
 try{
     const query = `
     SELECT 

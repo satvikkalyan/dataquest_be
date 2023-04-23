@@ -12,10 +12,8 @@ function queryDatabase(query, params) {
       if (err) {
         reject(err);
       } else {
-        
-        console.log(params);
         connection.query(query, params, (err, results) => {
-        connection.release(); // Release the connection back to the pool
+        connection.release(); 
         if (err) {
             reject(err);
         } else {
@@ -38,10 +36,7 @@ router.get("/Jobs/:id", async (req, res) => {
       JOIN Companies ON Jobs.CompanyID = Companies.CompanyID
       WHERE Jobs.JobID = (?)
     `
-        console.log("hi")
         const job = await queryDatabase(query_job,parseInt(jobId));
-        console.log("hello");
-      //console.log(job);
         const COMPETITORS_query=`
         SELECT CompetitorName
         FROM COMPETITORS
@@ -55,7 +50,6 @@ router.get("/Jobs/:id", async (req, res) => {
         `
         const skills =await queryDatabase(skills_query,jobId);
         
-        // format the job details as desired
         jobDetails.push({
             jobId: job[0].JobID,
             jobTitle: job[0].JobTitle,

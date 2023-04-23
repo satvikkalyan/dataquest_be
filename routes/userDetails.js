@@ -3,7 +3,6 @@ const router = express.Router();
 const mysql = require("mysql");
 const dbConfig = require("./../conf/database");
 router.use(express.json());
-// Create a MySQL connection pool
 const pool = mysql.createPool(dbConfig);
 
 function queryDatabase(query, params) {
@@ -13,7 +12,7 @@ function queryDatabase(query, params) {
         reject(err);
       } else {
         connection.query(query, params, (err, results) => {
-          connection.release(); // Release the connection back to the pool
+          connection.release(); 
           if (err) {
             reject(err);
           } else {
@@ -25,11 +24,9 @@ function queryDatabase(query, params) {
   });
 }
 
-// Define API endpoint to fetch user details from the 'users', 'user_job', and 'skills' tables
 router.get("/users/:id", async (req, res) => {
   const userId = req.params.id;
   try {
-    // Perform a JOIN query to fetch user details from the 'users', 'user_job', and 'skills' tables
     const query = `
       SELECT
         u.user_id,
@@ -60,7 +57,6 @@ router.get("/users/:id", async (req, res) => {
 router.get("/users/verify/:email", async (req, res) => {
   const email = req.params.email;
   try {
-    // Perform a JOIN query to fetch user details from the 'users', 'user_job', and 'skills' tables
     const query = `
       SELECT
         u.user_id,
@@ -116,14 +112,11 @@ router.put("/users/:id", async (req, res) => {
 router.put("/users-job/:id", async (req, res) => {
   const { company, title, salary, salary_type, job_rating } = req.body;
   const userId = parseInt(req.params.id);
-  console.log(company, title, salary, "Annually", job_rating);
   try {
-    // Perform a SELECT query to check if user has job details already present in 'user_job' table
     const query = `SELECT * FROM user_job WHERE user_id = ?`;
     const result = await queryDatabase(query, [userId]);
 
     if (result.length > 0) {
-      // If job details already present for user, perform an UPDATE query to update the details
       const updateQuery = `UPDATE user_job
                            SET company = ?, title = ?, salary = ?, salary_type = ?, job_rating = ?
                            WHERE user_id = ?`;
@@ -137,7 +130,6 @@ router.put("/users-job/:id", async (req, res) => {
       ]);
       res.status(200).json({ message: "Job details updated successfully" });
     } else {
-      // If job details not present for user, perform an INSERT query to create a new record
       const insertQuery = `INSERT INTO user_job (company, title, salary, salary_type, job_rating, user_id)
                            VALUES (?, ?, ?, ?, ?, ?)`;
       await queryDatabase(insertQuery, [
@@ -158,12 +150,10 @@ router.put("/users-job/:id", async (req, res) => {
   }
 });
 
-// Define API endpoint to create a new user in 'users' table
 router.post("/users", async (req, res) => {
   const { firstName, lastName, email, passphrase, gender, admin } = req.body;
 
   try {
-    // Perform an INSERT query to create a new user in 'users' table
     const query = `INSERT INTO users (firstName, lastName, email, passphrase, gender,isadmin)
                      VALUES (?, ?, ?, ?, ?,?)`;
     const result = await queryDatabase(query, [
@@ -185,7 +175,6 @@ router.post("/users-job", async (req, res) => {
   const { company, title, salary, salary_type, job_rating, user_id } = req.body;
 
   try {
-    // Perform an INSERT query to create a new user in 'users' table
     const query = `INSERT INTO user_job (company, title, salary, salary_type, job_rating , user_id)
                        VALUES (?, ?, ?, ?, ?,?)`;
     const result = await queryDatabase(query, [
@@ -206,7 +195,6 @@ router.post("/users-job", async (req, res) => {
 router.post("/users-skills", async (req, res) => {
   const { user_id, skill } = req.body;
   try {
-    // Perform an INSERT query to create a new skill for a user in 'skills' table
     const query = `INSERT INTO skills (user_id, skill) VALUES (?, ?)`;
     const result = await queryDatabase(query, [user_id, skill]);
     res.status(201).send(`${result.insertId}`);
