@@ -67,17 +67,22 @@ router.post("/createJob", async (req, res) => {
       }
     }
   }
-
+    const id_query_job="select max(JobId) as maxid from Jobs;"
+    max_id= await queryDatabase(id_query_job, []);
+    console.log(max_id)
+    console.log(max_id[0].maxid);
+    new_id_job=max_id[0].maxid+Math.floor(Math.random() * 100);
+    console.log(new_id_job," new id")
   // Insert job
   const createJobQuery = "INSERT INTO Jobs (JobID, JobTitle, JobDescription, Hourly, EmployerProvided, LowerSalary, UpperSalary, AvgSalary, CompanyID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  const createJobParams = [    jobData.jobId,    jobData.jobTitle,    jobData.jobDescription,    jobData.hourly,    jobData.employerProvided,    jobData.lowerSalary,    jobData.upperSalary,    jobData.avgSalary,    companyId  ];
+  const createJobParams = [   new_id_job ,    jobData.jobTitle,    jobData.jobDescription,    jobData.hourly,    jobData.employerProvided,    jobData.lowerSalary,    jobData.upperSalary,    jobData.avgSalary,    companyId  ];
   await queryDatabase(createJobQuery, createJobParams);
 
   // Insert job skills
   if (jobData.skills && jobData.skills.length > 0) {
     const insertSkillQuery = "INSERT INTO JobSkills (JobID, Skill) VALUES (?, ?)";
     for (let i = 0; i < jobData.skills.length; i++) {
-      const skillParams = [jobData.jobId, jobData.skills[i]];
+      const skillParams = [new_id_job, jobData.skills[i]];
       await queryDatabase(insertSkillQuery, skillParams);
     }
   }
